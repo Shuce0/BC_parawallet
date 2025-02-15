@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@getpara/server-sdk": "^1.1.0"
+    "@getpara/server-sdk": "^1.1.0",
+    "@getpara/modal-react": "latest"
   }
 }

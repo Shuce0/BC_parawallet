@@ -1,24 +1,21 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, Update
+from telegram.ext import Application, CommandHandler
+from telegram import Update
 
 API_TOKEN = "7001964840:AAE7mPwUgOiXckLrsAPoA2lGht_Ut0Lryp0"
 
-# Hàm mở Mini-App
-def open_miniapp(update: Update, context: CallbackContext) -> None:
+async def open_miniapp(update: Update, context) -> None:
     keyboard = [
-        [InlineKeyboardButton("Open Mini-App", url="https://mamothon.vercel.app")]  # Đảm bảo URL đúng
+        [InlineKeyboardButton("Open Mini-App", url=https://para-miniapp.vercel.app"")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text('Click to open the Mini-App:', reply_markup=reply_markup)
+    
+    await update.message.reply_text('Click below to open the Mini-App:', reply_markup=reply_markup)
 
 def main():
-    updater = Updater(API_TOKEN)
-    dp = updater.dispatcher
-
-    dp.add_handler(CommandHandler('start', open_miniapp))
-
-    updater.start_polling()
-    updater.idle()
+    application = Application.builder().token(API_TOKEN).build()
+    application.add_handler(CommandHandler('start', open_miniapp))
+    application.run_polling()
 
 if __name__ == '__main__':
     main()

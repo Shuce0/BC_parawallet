@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     const response = await fetch(`https://api.getpara.com/v1/wallet/${wallet_id}/claim`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer YOUR_PARA_API_KEY` // Thay thế YOUR_PARA_API_KEY bằng API Key của bạn
+        "Authorization": `Bearer 87efcb06b5c9758c587c343eb2fe0281` // Thay thế YOUR_PARA_API_KEY bằng API Key của bạn
       },
     });
 
