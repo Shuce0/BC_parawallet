@@ -23,9 +23,8 @@ export async function POST(req) {
     // Kiểm tra phản hồi từ API bên ngoài
     if (response.ok) {
       return new Response(JSON.stringify({ message: "Wallet claimed successfully!" }), { status: 200 });
-    } else {
-      return new Response(JSON.stringify({ message: "Error claiming wallet" }), { status: 500 });
     }
+    return new Response(JSON.stringify({ message: "Error claiming wallet" }), { status: 500 });
   } catch (error) {
     // Bắt lỗi nếu có vấn đề khi gửi yêu cầu
     return new Response(JSON.stringify({ message: "Error claiming wallet" }), { status: 500 });

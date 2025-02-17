@@ -6,7 +6,7 @@ API_TOKEN = "7001964840:AAE7mPwUgOiXckLrsAPoA2lGht_Ut0Lryp0"
 
 async def open_miniapp(update: Update, context) -> None:
     keyboard = [
-        [InlineKeyboardButton("Open Mini-App", url=https://para-miniapp.vercel.app"")]
+        [InlineKeyboardButton("Open Mini-App", url="https://para-miniapp.vercel.app")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     

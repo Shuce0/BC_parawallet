@@ -1,5 +1,6 @@
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true, // Bật tính năng minification với SWC
   webpack(config, { isServer }) {
     if (!isServer) {
       config.resolve.fallback = {
@@ -17,7 +18,11 @@ const nextConfig = {
     port: 3000
   },
   experimental: {
-    serverActions: true
+    serverActions: true,
+    appDir: true,
+  },
+  env: {
+    NEXT_PUBLIC_PARA_API_KEY: process.env.NEXT_PUBLIC_PARA_API_KEY,
   }
 };
 

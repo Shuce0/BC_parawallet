@@ -4,8 +4,9 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #171717; /* Màu chữ mặc định */
+  --foreground: #040400; /* Màu chữ mặc định */
   --background: #ffffff; /* Màu nền mặc định */
+  --accent: #d1bfbf; /* Màu chữ chú thích */
   --font-sans: "GeistSans", sans-serif;
   --font-mono: "GeistMono", monospace;
 }
@@ -26,8 +27,9 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground: #ededed; /* Màu chữ cho chế độ tối */
-    --background: #0a0a0a; /* Màu nền cho chế độ tối */
+    --foreground: #040400; /* Màu chữ mặc định */
+    --background: #ffffff; /* Màu nền mặc định */
+    --accent: #d1bfbf; /* Màu chữ chú thích */
   }
 }
 

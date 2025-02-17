@@ -12,10 +12,9 @@
   },
   "dependencies": {
     "@geist-ui/react": "^2.2.5",
-    "@getpara/evm-wallet-connectors": "^1.2.0",
+    "@getpara/evm-wallet-connectors": "^1.3.0",
     "@getpara/react-sdk": "^1.2.0",
     "@getpara/server-sdk": "^1.1.0",
-    "@getpara/modal-react": "latest",
     "@getpara/web-sdk": "^1.2.0",
     "@tanstack/react-query": "^5.66.3",
     "next": "^15.1.7",
@@ -25,9 +24,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.6",
+    "@types/debug": "^4.1.12",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/trusted-types": "^2.0.7",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.2",
     "postcss-cli": "^11.0.0",
