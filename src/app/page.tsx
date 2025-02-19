@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import Para, { OAuthMethod, Environment } from "@getpara/web-sdk";
 import { ParaModal } from "@getpara/react-sdk";
 
+
 // Lấy API_KEY từ biến môi trường
 const API_KEY = process.env.NEXT_PUBLIC_PARA_API_KEY;
+const test_win = typeof window !== 'undefined' ? window.location.origin : '';
 
 const para = new Para(Environment.BETA, API_KEY);
 
