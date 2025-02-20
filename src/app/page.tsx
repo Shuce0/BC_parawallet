@@ -1,10 +1,15 @@
 "use client";  // Bắt buộc để sử dụng useState và useEffect trong App Router
 import React, { useState, useEffect } from "react";
 import Para, { OAuthMethod, Environment } from "@getpara/web-sdk";
-import type { Wallet as ParaWallet } from "@getpara/web-sdk";  // Add this import
+import type { Wallet as ParaWallet, WalletType } from "@getpara/web-sdk";  // Add WalletType
 import { ParaModal } from "@getpara/react-sdk";
 import type { ParaModalProps } from "@getpara/react-sdk";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+// import { useWallet } from "../contexts/WalletContext"; // Import useWallet hook
+
+interface ExtendedWalletInfo extends ParaWallet {
+    chain?: string;
+}
 
 // Lấy API_KEY từ biến môi trường
 const API_KEY = process.env.NEXT_PUBLIC_PARA_API_KEY;
@@ -16,6 +21,26 @@ export default function HomePage() {
     const router = useRouter();
     const [wallet, setWallet] = useState<ParaWallet | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const searchParams = useSearchParams();
+
+    // const { setWalletInfo } = useWallet(); // Lấy hàm setWalletInfo từ context
+
+    // useEffect(() => {
+    //     if (!searchParams) return;
+    //     const address = searchParams?.get("address");
+    //     const type = searchParams?.get("type");
+    //     const id = searchParams?.get("id");
+    //     const chain = searchParams?.get("chain");
+
+    //     if (address && type) {
+    //         setWalletInfo({
+    //             id: id || "",
+    //             address,
+    //             type: type as WalletType,
+    //             chain: chain || "",
+    //         } as ExtendedWalletInfo);
+    //     }
+    // }, [searchParams, setWalletInfo]);
 
     const handleLoginSuccess = async (wallet: ParaWallet) => {
         try {
@@ -68,7 +93,7 @@ export default function HomePage() {
                         className="avatar-image"
                     />
                     <span className="status-badge">
-                        Online
+                        Offline
                     </span>
                 </div>
 
@@ -87,18 +112,6 @@ export default function HomePage() {
                         Open Para Wallet
                     </button>
                 </div>
-
-                {wallet && (
-                    <div className="container glass-card text-foreground p-6">
-                        <h2 className="text-2xl font-bold mb-4">Wallet Information</h2>
-                        <div className="text-left space-y-2">
-                            <p><span className="font-semibold">Wallet ID:</span> {wallet.id}</p>
-                            <p><span className="font-semibold">Address:</span> {wallet.address}</p>
-                            <p><span className="font-semibold">Type:</span> {wallet.type}</p>
-                            {/* <p><span className="font-semibold">Chain:</span> {wallet.chain}</p> */}
-                        </div>
-                    </div>
-                )}
 
                 {/* Para Wallet Modal */}
                 {isModalOpen && (
