@@ -1,9 +1,11 @@
 "use client";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import type { Wallet as ParaWallet } from "@getpara/web-sdk";
 import { FaHome, FaTrophy, FaWallet, FaTasks, FaUserPlus } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import "../styles/dashbroad.css";
+import para from '../utils/para';
 
 interface ExtendedParaWallet {
     id: string;
@@ -15,6 +17,7 @@ interface ExtendedParaWallet {
 export default function TaskPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [walletInfo, setWalletInfo] = useState<ExtendedParaWallet | null>(null);
     const [points, setPoints] = useState<number | null>(null);
     const [username, setUsername] = useState<string | null>(null);
@@ -22,10 +25,10 @@ export default function TaskPage() {
         {
             id: "task1",
             status: "Go",
-            url: "https://celestia.org/",
+            url: "https://www.youtube.com/watch?v=_-6YJIZF4uY&feature=youtu.be",
             name: "Watch video and earn", // Task name
             description: "Watch the video to earn rewards",
-            points: "10,000"
+            points: "20"
         },
         {
             id: "task2",
@@ -33,7 +36,7 @@ export default function TaskPage() {
             url: "https://docs.getpara.com/welcome",
             name: "Read the documentation", // Task name
             description: "Read the official documentation to learn more",
-            points: "5,000"
+            points: "20"
         },
         {
             id: "task3",
@@ -41,7 +44,7 @@ export default function TaskPage() {
             url: "https://www.encode.club/mammothon",
             name: "Complete Mammothon", // Task name
             description: "Complete the Mammothon challenge",
-            points: "20,000"
+            points: "20"
         }
     ]);
 
@@ -111,6 +114,51 @@ export default function TaskPage() {
         }
     };
 
+    const openModal = () => {
+        setIsModalOpen(true); // Set the modal state to true
+        const paraWallets = para.getWallets();
+        const firstWallet = Object.values(paraWallets)[0];
+        if (firstWallet) {
+            handleLoginSuccess(firstWallet);
+        }
+        localStorage.setItem("isModalOpen", "true");
+        localStorage.setItem("isModalOpen", "true"); // Store the modal state in localStorage
+    };
+
+    const navigateToLeaders = () => {
+        router.push('/leaders');
+    };
+
+    const handleLoginSuccess = async (wallet: ParaWallet) => {
+        try {
+            const paraWallets = para.getWallets();
+            const firstWallet = Object.values(paraWallets)[0];
+            if (firstWallet) {
+                setWalletInfo({
+                    id: firstWallet.id || "",
+                    address: firstWallet.address || "",
+                    type: firstWallet.type || ""
+                }); // Save wallet info to state
+                setIsModalOpen(false); // Close modal after success
+                localStorage.setItem('isModalOpen', 'true');
+
+                // Construct URL with wallet info
+                const params = new URLSearchParams({
+                    address: firstWallet.address || '',
+                    type: firstWallet.type || '',
+                    id: firstWallet.id || ''
+                }).toString();
+
+                // Navigate to dashboard with wallet params
+                await router.push(`/dashbroad?${params}`);
+                localStorage.setItem("isModalOpen", "false");
+            }
+        } catch (error) {
+            console.error("Error getting wallets:", error);
+        }
+    };
+
+
     return (
         <div className="container flex justify-center items-center min-h-screen bg-gradient-custom">
             <div className="container_taskpage mx-auto max-w-4xl p-8">
@@ -162,11 +210,11 @@ export default function TaskPage() {
 
             {/* Bottom Navbar */}
             <div className="bottom-navbar">
-                <button type="button" className="navbar-button">
+                <button type="button" className="navbar-button" onClick={openModal}>
                     <FaHome size={20} className="button-icon" />
                     <span>Home</span>
                 </button>
-                <button type="button" className="navbar-button">
+                <button type="button" className="navbar-button" onClick={navigateToLeaders}>
                     <FaTrophy size={20} className="button-icon" />
                     <span>Leaders</span>
                 </button>
@@ -186,3 +234,4 @@ export default function TaskPage() {
         </div>
     );
 }
+

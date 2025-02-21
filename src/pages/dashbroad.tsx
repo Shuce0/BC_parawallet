@@ -3,16 +3,25 @@ import { FaHome, FaTrophy, FaWallet, FaTasks, FaUserPlus } from 'react-icons/fa'
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Wallet as ParaWallet } from "@getpara/web-sdk";
+import Para, { OAuthMethod, Environment } from "@getpara/web-sdk";
+import { ParaModal } from "@getpara/react-sdk";
+import type { ParaModalProps } from "@getpara/react-sdk";
 import "../styles/dashbroad.css";
 import { useRouter } from 'next/navigation';
+import para from '../utils/para';
+import { modalProps } from '../utils/modalProps';
+
 // import { useWallet } from "../contexts/WalletContext";
 
 interface ExtendedParaWallet extends ParaWallet {
     chain?: string;
 }
 
+
 export default function Dashboard() {
     const router = useRouter();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const searchParams = useSearchParams();
     const [walletInfo, setWalletInfo] = useState<ExtendedParaWallet | null>(null);
 
@@ -25,6 +34,11 @@ export default function Dashboard() {
         const id = searchParams.get("id");
         const chain = searchParams.get("chain");
 
+        const modalState = localStorage.getItem('isModalOpen');
+        if (modalState === 'true') {
+            setIsModalOpen(true);
+        }
+
         if (address && type) {
             setWalletInfo({
                 id: id || "",
@@ -36,6 +50,57 @@ export default function Dashboard() {
         }
     }, [searchParams]);
 
+    const openModal = () => {
+        setIsModalOpen(true); // Set the modal state to true
+        const paraWallets = para.getWallets();
+        const firstWallet = Object.values(paraWallets)[0];
+        if (firstWallet) {
+            handleLoginSuccess(firstWallet);
+        }
+        localStorage.setItem("isModalOpen", "true");
+        localStorage.setItem("isModalOpen", "true"); // Store the modal state in localStorage
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        localStorage.setItem('isModalOpen', 'false'); // Reset modal state
+    };
+
+    const updatedModalProps = {
+        ...modalProps,
+        isOpen: isModalOpen,
+        onClose: closeModal, // Close modal when triggered
+    };
+
+
+
+    const handleLoginSuccess = async (wallet: ParaWallet) => {
+        try {
+            const paraWallets = para.getWallets();
+            const firstWallet = Object.values(paraWallets)[0];
+            if (firstWallet) {
+                setWalletInfo(firstWallet); // Save wallet info to state
+                setIsModalOpen(false); // Close modal after success
+                localStorage.setItem('isModalOpen', 'true');
+
+                // Construct URL with wallet info
+                const params = new URLSearchParams({
+                    address: firstWallet.address || '',
+                    type: firstWallet.type || '',
+                    id: firstWallet.id || ''
+                }).toString();
+
+                // Navigate to dashboard with wallet params
+                await router.push(`/dashbroad?${params}`);
+                localStorage.setItem("isModalOpen", "false");
+            }
+        } catch (error) {
+            console.error("Error getting wallets:", error);
+        }
+    };
+
+    // Define modalProps
+
     const navigateToTaskPage = () => {
         if (walletInfo) {
             const { address, type, id, chain } = walletInfo;
@@ -44,6 +109,9 @@ export default function Dashboard() {
         }
     };
 
+    const navigateToLeaders = () => {
+        router.push('/leaders');
+    };
 
     return (
         <div className="dashboard-container">
@@ -78,14 +146,21 @@ export default function Dashboard() {
 
             {/* Bottom Navigation */}
             <div className="bottom-navbar">
-                <button type="button" className="navbar-button">
+                <button type="button" className="navbar-button" onClick={openModal}>
+                    <FaHome size={20} className="button-icon" />
+                    <span>Home</span>
+                </button>
+                <button type="button" className="navbar-button" onClick={navigateToLeaders}>
                     <FaTrophy size={20} className="button-icon" />
                     <span>Leaders</span>
                 </button>
-                <button type="button" className="navbar-button">
+                <button type="button" className="navbar-button" >
                     <FaWallet size={20} className="button-icon" />
                     <span>Earn</span>
                 </button>
+                {/* {isModalOpen &&
+                    // <ParaModal {...updatedModalProps} />
+                } */}
                 <button type="button" className="navbar-button" onClick={navigateToTaskPage}>
                     <FaTasks size={20} className="button-icon" />
                     <span>Tasks</span>
@@ -95,6 +170,7 @@ export default function Dashboard() {
                     <span>Invites</span>
                 </button>
             </div>
+
 
         </div>
     );

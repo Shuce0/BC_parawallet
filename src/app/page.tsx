@@ -1,46 +1,53 @@
 "use client";  // Bắt buộc để sử dụng useState và useEffect trong App Router
 import React, { useState, useEffect } from "react";
-import Para, { OAuthMethod, Environment } from "@getpara/web-sdk";
 import type { Wallet as ParaWallet, WalletType } from "@getpara/web-sdk";  // Add WalletType
 import { ParaModal } from "@getpara/react-sdk";
 import type { ParaModalProps } from "@getpara/react-sdk";
 import { useRouter, useSearchParams } from 'next/navigation';
-// import { useWallet } from "../contexts/WalletContext"; // Import useWallet hook
+import para from '../utils/para';
+import { modalProps } from '../utils/modalProps';
+import { useModal } from "../context/ModalContext";
+
 
 interface ExtendedWalletInfo extends ParaWallet {
     chain?: string;
 }
 
 // Lấy API_KEY từ biến môi trường
-const API_KEY = process.env.NEXT_PUBLIC_PARA_API_KEY;
 const test_win = typeof window !== 'undefined' ? window.location.origin : '';
 
-const para = new Para(Environment.BETA, API_KEY);
+
 
 export default function HomePage() {
     const router = useRouter();
     const [wallet, setWallet] = useState<ParaWallet | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [isModalOpen, setIsModalOpen] = useState(false);
     const searchParams = useSearchParams();
+    const { isModalOpen, setIsModalOpen } = useModal();
 
-    // const { setWalletInfo } = useWallet(); // Lấy hàm setWalletInfo từ context
+    const openModal = () => {
+        setIsModalOpen(true);
+        const paraWallets = para.getWallets();
+        const firstWallet = Object.values(paraWallets)[0];
+        if (firstWallet) {
+            handleLoginSuccess(firstWallet);
+        }
+        localStorage.setItem("isModalOpen", "true"); // Store in localStorage to persist state across pages
+    };
 
-    // useEffect(() => {
-    //     if (!searchParams) return;
-    //     const address = searchParams?.get("address");
-    //     const type = searchParams?.get("type");
-    //     const id = searchParams?.get("id");
-    //     const chain = searchParams?.get("chain");
+    // Close modal when the user successfully logs in or cancels
+    const closeModal = () => {
+        setIsModalOpen(false);
+        localStorage.setItem("isModalOpen", "false"); // Reset modal state in localStorage
+    };
 
-    //     if (address && type) {
-    //         setWalletInfo({
-    //             id: id || "",
-    //             address,
-    //             type: type as WalletType,
-    //             chain: chain || "",
-    //         } as ExtendedWalletInfo);
-    //     }
-    // }, [searchParams, setWalletInfo]);
+    useEffect(() => {
+        // Check if modal state is saved in localStorage
+        const modalState = localStorage.getItem("isModalOpen");
+        if (modalState === "true") {
+            setIsModalOpen(true);
+        }
+    }, [setIsModalOpen]);
 
     const handleLoginSuccess = async (wallet: ParaWallet) => {
         try {
@@ -49,6 +56,7 @@ export default function HomePage() {
             if (firstWallet) {
                 setWallet(firstWallet); // Save wallet info to state
                 setIsModalOpen(false); // Close modal after success
+                localStorage.setItem('isModalOpen', 'true');
 
                 // Construct URL with wallet info
                 const params = new URLSearchParams({
@@ -59,27 +67,11 @@ export default function HomePage() {
 
                 // Navigate to dashboard with wallet params
                 await router.push(`/dashbroad?${params}`);
+                localStorage.setItem("isModalOpen", "false");
             }
         } catch (error) {
             console.error("Error getting wallets:", error);
         }
-    };
-
-    const modalProps: ParaModalProps = {
-        para,
-        isOpen: isModalOpen,
-        onClose: () => setIsModalOpen(false),
-        logo: "",
-        theme: {},
-        oAuthMethods: [
-            OAuthMethod.GOOGLE,
-            OAuthMethod.TWITTER,
-            OAuthMethod.DISCORD,
-            OAuthMethod.TELEGRAM
-        ],
-        authLayout: ["AUTH:FULL", "EXTERNAL:FULL"],
-        recoverySecretStepEnabled: true,
-        onRampTestMode: true,
     };
 
     return (
@@ -107,46 +99,11 @@ export default function HomePage() {
                     <button
                         type="button"
                         className="wallet-button flex items-center justify-center space-x-2 mx-auto"
-                        onClick={() => setIsModalOpen(true)}
+                        onClick={openModal}
                     >
                         Open Para Wallet
                     </button>
                 </div>
-
-                {/* Para Wallet Modal */}
-                {isModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="fixed inset-0 backdrop-blur-md bg-black/50 transition-opacity duration-300">
-                            <div className="relative h-full flex items-center justify-center p-4">
-                                {/* Para Wallet Modal */}
-                                {isModalOpen && (
-                                    <div className="modal-overlay">
-                                        <div className="">
-                                            <div className="para-modal-wrapper">
-                                                <div className="para-modal-container card-container">
-                                                    <ParaModal {...modalProps}
-                                                        onClose={() => {
-                                                            // Kiểm tra thông qua getAccount để xác định trạng thái ví đã được xác thực chưa
-                                                            try {
-                                                                const wallets = para.getWallets();
-                                                                const firstWallet = Object.values(wallets)[0];
-                                                                if (firstWallet) {
-                                                                    handleLoginSuccess(firstWallet);
-                                                                }
-                                                            } catch (error) {
-                                                                console.error("Error during login check:", error);
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -13,6 +13,7 @@ body {
   width: 100%;
   padding-top: 2rem;
   text-align: center;
+  overflow: hidden;
 }
 
 /* Gradient colors */
@@ -31,6 +32,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
 }
 
 .header-container {
@@ -121,9 +123,13 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
   bottom: 0;
-  left: 0;
+  left: 0.05rem;
+  right: 1rem;
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+  padding-right: 1rem;
+  /* padding-left: 1rem; */
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap; /* Cho phép các button xuống dòng khi không đủ không gian */
@@ -141,9 +147,9 @@ body {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  flex: 1; /* Button sẽ chiếm không gian đều */
-  min-width: 50px; /* Đảm bảo mỗi button có chiều rộng tối thiểu */
-  margin: 5px; /* Khoảng cách giữa các button */
+  flex: 1; /* Adjust flex to ensure buttons fit */
+  min-width: 80px; /* Set a minimum width */
+  margin: 5px; /* Spacing between buttons */
   text-align: center;
 }
 
@@ -199,6 +205,62 @@ body {
   background-color: #9e9e9e; /* Gray color */
 }
 
+/* Container Styling */
+.table-container {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  max-width: 800px;
+  overflow: hidden;
+}
+
+/* Table Styling */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Table Header Styling */
+.styled-table thead {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.styled-table th {
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+/* Table Body Styling */
+.styled-table tbody tr {
+  background-color: #ffffff;
+  transition: background-color 0.3s ease;
+}
+
+.styled-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.styled-table td {
+  padding: 1rem;
+  border-top: 1px solid #eaeaea;
+  color: black;
+}
+
+/* First Column (Rank) Styling */
+.styled-table td:first-child {
+  font-weight: 600;
+  color: black;
+}
+
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -225,5 +287,13 @@ body {
 
   .button-icon {
     font-size: 20px;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    padding: 0.8rem;
+  }
+  .styled-table th {
+    font-size: 0.9rem;
   }
 }
