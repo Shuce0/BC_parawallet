@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from 'react';
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Wallet as ParaWallet } from "@getpara/web-sdk";
@@ -6,6 +7,9 @@ import { FaHome, FaTrophy, FaWallet, FaTasks, FaUserPlus } from 'react-icons/fa'
 import { useRouter } from 'next/navigation';
 import "../styles/dashbroad.css";
 import para from '../utils/para';
+
+
+
 
 interface ExtendedParaWallet {
     id: string;
@@ -115,14 +119,18 @@ export default function TaskPage() {
     };
 
     const openModal = () => {
-        setIsModalOpen(true); // Set the modal state to true
-        const paraWallets = para.getWallets();
-        const firstWallet = Object.values(paraWallets)[0];
-        if (firstWallet) {
-            handleLoginSuccess(firstWallet);
+        setIsModalOpen(true);
+        if (typeof window !== 'undefined') {
+            try {
+                const paraWallets = para.getWallets();
+                const firstWallet = Object.values(paraWallets)[0];
+                if (firstWallet) {
+                    handleLoginSuccess(firstWallet);
+                }
+            } catch (error) {
+                console.error("Error in openModal:", error);
+            }
         }
-        localStorage.setItem("isModalOpen", "true");
-        localStorage.setItem("isModalOpen", "true"); // Store the modal state in localStorage
     };
 
     const navigateToLeaders = () => {
@@ -140,7 +148,6 @@ export default function TaskPage() {
                     type: firstWallet.type || ""
                 }); // Save wallet info to state
                 setIsModalOpen(false); // Close modal after success
-                localStorage.setItem('isModalOpen', 'true');
 
                 // Construct URL with wallet info
                 const params = new URLSearchParams({
@@ -151,7 +158,6 @@ export default function TaskPage() {
 
                 // Navigate to dashboard with wallet params
                 await router.push(`/dashbroad?${params}`);
-                localStorage.setItem("isModalOpen", "false");
             }
         } catch (error) {
             console.error("Error getting wallets:", error);
@@ -160,78 +166,86 @@ export default function TaskPage() {
 
 
     return (
-        <div className="container flex justify-center items-center min-h-screen bg-gradient-custom">
-            <div className="container_taskpage mx-auto max-w-4xl p-8">
-
-                {/* Centered Information Section */}
-                <div className="text-center mb-8">
-                    {points !== null && (
-                        <div className="glass-card text-foreground p-6 mb-4">
-                            <h2 className="text-2xl font-bold mb-4">WAG</h2>
-                            <p className="text-lg">Points: {points}</p>
-                        </div>
-                    )}
-
-                    {username && (
-                        <div className="glass-card text-foreground p-6">
-
-                            <p className="font_taskpage">
-                                <FaWallet size={20} className="button-icon" />: {username}
-                            </p>
-                        </div>
-                    )}
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="glass-card p-6">
+                    <p className="text-white">Loading...</p>
                 </div>
+            </div>
+        }>
+            <div className="container flex justify-center items-center min-h-screen bg-gradient-custom">
+                <div className="container_taskpage mx-auto max-w-4xl p-8">
 
-                <div className="glass-card text-foreground p-6 mt-4">
-                    <h2 className="text-2xl font-bold mb-4">Tasks</h2>
-
-                    {/* Task Buttons */}
-                    {tasks.map((task) => (
-                        <div key={task.id} className="task-item mb-4 flex items-center justify-between">
-                            <div className="task-description">
-                                <h3 className="text-xl font-semibold">{task.name}</h3> {/* Task Name */}
-                                <p className="text-lg font-medium">{task.description}</p> {/* Task Description */}
-                                <p className="text-sm text-gray-500">+ {task.points}</p> {/* Points */}
+                    {/* Centered Information Section */}
+                    <div className="text-center mb-8">
+                        {points !== null && (
+                            <div className="glass-card text-foreground p-6 mb-4">
+                                <h2 className="text-2xl font-bold mb-4">WAG</h2>
+                                <p className="text-lg">Points: {points}</p>
                             </div>
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    task.status === "Go" ? navigateToTaskPage(task.url, task.id) : handleClaimPoints(task.id)
-                                }
-                                className={`task-button ${task.status === "Go" ? "bg-orange-500" : "bg-gray-400"}`}
-                            >
-                                {task.status === "Go" ? "Bắt đầu" : task.status === "Claim" ? "Claim" : "Claimed"}
-                            </button>
-                        </div>
-                    ))}
+                        )}
+
+                        {username && (
+                            <div className="glass-card text-foreground p-6">
+
+                                <p className="font_taskpage">
+                                    <FaWallet size={20} className="button-icon" />: {username}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="glass-card text-foreground p-6 mt-4">
+                        <h2 className="text-2xl font-bold mb-4">Tasks</h2>
+
+                        {/* Task Buttons */}
+                        {tasks.map((task) => (
+                            <div key={task.id} className="task-item mb-4 flex items-center justify-between">
+                                <div className="task-description">
+                                    <h3 className="text-xl font-semibold">{task.name}</h3> {/* Task Name */}
+                                    <p className="text-lg font-medium">{task.description}</p> {/* Task Description */}
+                                    <p className="text-sm text-gray-500">+ {task.points}</p> {/* Points */}
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        task.status === "Go" ? navigateToTaskPage(task.url, task.id) : handleClaimPoints(task.id)
+                                    }
+                                    className={`task-button ${task.status === "Go" ? "bg-orange-500" : "bg-gray-400"}`}
+                                >
+                                    {task.status === "Go" ? "Bắt đầu" : task.status === "Claim" ? "Claim" : "Claimed"}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
                 </div>
 
+                {/* Bottom Navbar */}
+                <div className="bottom-navbar">
+                    <button type="button" className="navbar-button" onClick={openModal}>
+                        <FaHome size={20} className="button-icon" />
+                        <span>Home</span>
+                    </button>
+                    <button type="button" className="navbar-button" onClick={navigateToLeaders}>
+                        <FaTrophy size={20} className="button-icon" />
+                        <span>Leaders</span>
+                    </button>
+                    <button type="button" className="navbar-button">
+                        <FaWallet size={20} className="button-icon" />
+                        <span>Earn</span>
+                    </button>
+                    <button type="button" className="navbar-button">
+                        <FaTasks size={20} className="button-icon" />
+                        <span>Tasks</span>
+                    </button>
+                    <button type="button" className="navbar-button">
+                        <FaUserPlus size={20} className="button-icon" />
+                        <span>Invites</span>
+                    </button>
+                </div>
             </div>
-
-            {/* Bottom Navbar */}
-            <div className="bottom-navbar">
-                <button type="button" className="navbar-button" onClick={openModal}>
-                    <FaHome size={20} className="button-icon" />
-                    <span>Home</span>
-                </button>
-                <button type="button" className="navbar-button" onClick={navigateToLeaders}>
-                    <FaTrophy size={20} className="button-icon" />
-                    <span>Leaders</span>
-                </button>
-                <button type="button" className="navbar-button">
-                    <FaWallet size={20} className="button-icon" />
-                    <span>Earn</span>
-                </button>
-                <button type="button" className="navbar-button">
-                    <FaTasks size={20} className="button-icon" />
-                    <span>Tasks</span>
-                </button>
-                <button type="button" className="navbar-button">
-                    <FaUserPlus size={20} className="button-icon" />
-                    <span>Invites</span>
-                </button>
-            </div>
-        </div>
+        </Suspense>
     );
 }
 

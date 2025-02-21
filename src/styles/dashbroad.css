@@ -167,7 +167,7 @@ body {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #ddd;
-  padding: 10px 0;
+  padding: 10px 2rem;
 }
 
 /* Task Description Styling */
@@ -261,6 +261,8 @@ body {
   color: black;
 }
 
+/* Truncate the wallet address */
+
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -295,5 +297,12 @@ body {
   }
   .styled-table th {
     font-size: 0.9rem;
+  }
+
+  .styled-table td:nth-child(2) {
+    max-width: 120px; /* Set the maximum width for the wallet address on small screens */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add the ellipsis for overflow text */
+    white-space: nowrap; /* Prevent text from wrapping */
   }
 }

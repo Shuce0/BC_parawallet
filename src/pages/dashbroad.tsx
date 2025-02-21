@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from 'react';
 import { FaHome, FaTrophy, FaWallet, FaTasks, FaUserPlus } from 'react-icons/fa';
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -51,28 +52,23 @@ export default function Dashboard() {
     }, [searchParams]);
 
     const openModal = () => {
-        setIsModalOpen(true); // Set the modal state to true
-        const paraWallets = para.getWallets();
-        const firstWallet = Object.values(paraWallets)[0];
-        if (firstWallet) {
-            handleLoginSuccess(firstWallet);
+        setIsModalOpen(true);
+        if (typeof window !== 'undefined') {
+            try {
+                const paraWallets = para.getWallets();
+                const firstWallet = Object.values(paraWallets)[0];
+                if (firstWallet) {
+                    handleLoginSuccess(firstWallet);
+                }
+            } catch (error) {
+                console.error("Error in openModal:", error);
+            }
         }
-        localStorage.setItem("isModalOpen", "true");
-        localStorage.setItem("isModalOpen", "true"); // Store the modal state in localStorage
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
-        localStorage.setItem('isModalOpen', 'false'); // Reset modal state
     };
-
-    const updatedModalProps = {
-        ...modalProps,
-        isOpen: isModalOpen,
-        onClose: closeModal, // Close modal when triggered
-    };
-
-
 
     const handleLoginSuccess = async (wallet: ParaWallet) => {
         try {
@@ -81,7 +77,6 @@ export default function Dashboard() {
             if (firstWallet) {
                 setWalletInfo(firstWallet); // Save wallet info to state
                 setIsModalOpen(false); // Close modal after success
-                localStorage.setItem('isModalOpen', 'true');
 
                 // Construct URL with wallet info
                 const params = new URLSearchParams({
@@ -92,7 +87,6 @@ export default function Dashboard() {
 
                 // Navigate to dashboard with wallet params
                 await router.push(`/dashbroad?${params}`);
-                localStorage.setItem("isModalOpen", "false");
             }
         } catch (error) {
             console.error("Error getting wallets:", error);
@@ -114,64 +108,73 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="dashboard-container">
-            {/* Avatar Section (Header) */}
-            <div className='header_container'>
-                <div className="avatar-container">
-                    <img
-                        src="https://assets.cdn.filesafe.space/C4PQXa1OiDoBLHzyyKjQ/media/6686d864a52ad850036852ab.png"
-                        alt="User Avatar"
-                        className="avatar-image"
-                    />
-                    <span className="status-badge">Online</span>
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="glass-card p-6">
+                    <p className="text-white">Loading...</p>
                 </div>
             </div>
+        }>
+            <div className="dashboard-container">
+                {/* Avatar Section (Header) */}
+                <div className='header_container'>
+                    <div className="avatar-container">
+                        <img
+                            src="https://assets.cdn.filesafe.space/C4PQXa1OiDoBLHzyyKjQ/media/6686d864a52ad850036852ab.png"
+                            alt="User Avatar"
+                            className="avatar-image"
+                        />
+                        <span className="status-badge">Online</span>
+                    </div>
+                </div>
 
-            {/* Wallet Information Section (Center) */}
-            <div className="wallet-info-container">
-                {walletInfo && (
-                    <div className="glass-card p-6">
-                        <h2 className="text-2xl font-bold text-center mb-4">Wallet Information</h2>
-                        <div className="text-left space-y-4">
-                            <div className="glass-card-inner p-4 rounded-lg">
-                                <p>
-                                    <span className="font-semibold">Wallet ID:</span>
-                                    <span className="wallet-info-field ml-2 break-all">{walletInfo.id}</span>
-                                </p>
+                {/* Wallet Information Section (Center) */}
+                <div className="wallet-info-container">
+                    {walletInfo && (
+                        <div className="glass-card p-6">
+                            <h2 className="text-2xl font-bold text-center mb-4">Wallet Information</h2>
+                            <div className="text-left space-y-4">
+                                <div className="glass-card-inner p-4 rounded-lg">
+                                    <p>
+                                        <span className="font-semibold">Wallet ID:</span>
+                                        <span className="wallet-info-field ml-2 break-all">{walletInfo.id}</span>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
 
-            {/* Bottom Navigation */}
-            <div className="bottom-navbar">
-                <button type="button" className="navbar-button" onClick={openModal}>
-                    <FaHome size={20} className="button-icon" />
-                    <span>Home</span>
-                </button>
-                <button type="button" className="navbar-button" onClick={navigateToLeaders}>
-                    <FaTrophy size={20} className="button-icon" />
-                    <span>Leaders</span>
-                </button>
-                <button type="button" className="navbar-button" >
-                    <FaWallet size={20} className="button-icon" />
-                    <span>Earn</span>
-                </button>
-                {/* {isModalOpen &&
+                {/* Bottom Navigation */}
+                <div className="bottom-navbar">
+                    <button type="button" className="navbar-button" onClick={openModal}>
+                        <FaHome size={20} className="button-icon" />
+                        <span>Home</span>
+                    </button>
+                    <button type="button" className="navbar-button" onClick={navigateToLeaders}>
+                        <FaTrophy size={20} className="button-icon" />
+                        <span>Leaders</span>
+                    </button>
+                    <button type="button" className="navbar-button" >
+                        <FaWallet size={20} className="button-icon" />
+                        <span>Earn</span>
+                    </button>
+                    {/* {isModalOpen &&
                     // <ParaModal {...updatedModalProps} />
                 } */}
-                <button type="button" className="navbar-button" onClick={navigateToTaskPage}>
-                    <FaTasks size={20} className="button-icon" />
-                    <span>Tasks</span>
-                </button>
-                <button type="button" className="navbar-button">
-                    <FaUserPlus size={20} className="button-icon" />
-                    <span>Invites</span>
-                </button>
+                    <button type="button" className="navbar-button" onClick={navigateToTaskPage}>
+                        <FaTasks size={20} className="button-icon" />
+                        <span>Tasks</span>
+                    </button>
+                    <button type="button" className="navbar-button">
+                        <FaUserPlus size={20} className="button-icon" />
+                        <span>Invites</span>
+                    </button>
+                </div>
+
+
             </div>
 
-
-        </div>
+        </Suspense>
     );
 }

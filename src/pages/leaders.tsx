@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from 'react';
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -96,7 +97,6 @@ const LeadersPage = () => {
           type: firstWallet.type || ""
         }); // Save wallet info to state
         setIsModalOpen(false); // Close modal after success
-        localStorage.setItem('isModalOpen', 'true');
 
         // Construct URL with wallet info
         const params = new URLSearchParams({
@@ -107,7 +107,6 @@ const LeadersPage = () => {
 
         // Navigate to dashboard with wallet params
         await router.push(`/taskpage?${params}`);
-        localStorage.setItem("isModalOpen", "false");
       }
     } catch (error) {
       console.error("Error getting wallets:", error);
@@ -115,14 +114,18 @@ const LeadersPage = () => {
   };
 
   const openModal = () => {
-    setIsModalOpen(true); // Set the modal state to true
-    const paraWallets = para.getWallets();
-    const firstWallet = Object.values(paraWallets)[0];
-    if (firstWallet) {
-      handleLoginSuccess(firstWallet);
+    setIsModalOpen(true);
+    if (typeof window !== 'undefined') {
+      try {
+        const paraWallets = para.getWallets();
+        const firstWallet = Object.values(paraWallets)[0];
+        if (firstWallet) {
+          handleLoginSuccess(firstWallet);
+        }
+      } catch (error) {
+        console.error("Error in openModal:", error);
+      }
     }
-    localStorage.setItem("isModalOpen", "true");
-    localStorage.setItem("isModalOpen", "true"); // Store the modal state in localStorage
   };
 
   const navigateToLeaders = () => {
@@ -151,65 +154,72 @@ const LeadersPage = () => {
 
         // Navigate to dashboard with wallet params
         await router.push(`/dashbroad?${params}`);
-        localStorage.setItem("isModalOpen", "false");
       }
     } catch (error) {
       console.error("Error getting wallets:", error);
     }
   };
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-bold mb-8 text-center">Leaderboard</h1>
-
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      <div className="table-container">
-        <table className="styled-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Wallet Address</th>
-              <th>Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leaders.map((leader, index) => (
-              <tr key={leader.address}>
-                <td>{index + 1}</td>
-                <td>{leader.address}</td>
-                <td>{leader.points}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="glass-card p-6">
+          <p className="text-white">Loading...</p>
+        </div>
       </div>
+    }>
+      <div className="container mx-auto p-8">
+        <h1 className="text-4xl font-bold mb-8 text-center">Leaderboard</h1>
 
-      <div className="bottom-navbar">
-        <button type="button" className="navbar-button" onClick={openModal}>
-          <FaHome size={20} className="button-icon" />
-          <span>Home</span>
-        </button>
-        <button type="button" className="navbar-button" onClick={navigateToLeaders}>
-          <FaTrophy size={20} className="button-icon" />
-          <span>Leaders</span>
-        </button>
-        <button type="button" className="navbar-button" >
-          <FaWallet size={20} className="button-icon" />
-          <span>Earn</span>
-        </button>
-        {/* {isModalOpen &&
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+
+        <div className="table-container">
+          <table className="styled-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Wallet Address</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leaders.map((leader, index) => (
+                <tr key={leader.address}>
+                  <td>{index + 1}</td>
+                  <td>{leader.address}</td>
+                  <td>{leader.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bottom-navbar">
+          <button type="button" className="navbar-button" onClick={openModal}>
+            <FaHome size={20} className="button-icon" />
+            <span>Home</span>
+          </button>
+          <button type="button" className="navbar-button" onClick={navigateToLeaders}>
+            <FaTrophy size={20} className="button-icon" />
+            <span>Leaders</span>
+          </button>
+          <button type="button" className="navbar-button" >
+            <FaWallet size={20} className="button-icon" />
+            <span>Earn</span>
+          </button>
+          {/* {isModalOpen &&
                           // <ParaModal {...updatedModalProps} />
                       } */}
-        <button type="button" className="navbar-button" onClick={navigateToTaskPage}>
-          <FaTasks size={20} className="button-icon" />
-          <span>Tasks</span>
-        </button>
-        <button type="button" className="navbar-button">
-          <FaUserPlus size={20} className="button-icon" />
-          <span>Invites</span>
-        </button>
+          <button type="button" className="navbar-button" onClick={navigateToTaskPage}>
+            <FaTasks size={20} className="button-icon" />
+            <span>Tasks</span>
+          </button>
+          <button type="button" className="navbar-button">
+            <FaUserPlus size={20} className="button-icon" />
+            <span>Invites</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 };
 
